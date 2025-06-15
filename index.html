@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leasing vs Hire Purchase Calculator</title>
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #005eb8;
+        }
+
+        h2 {
+            color: #005eb8;
+            border-bottom: 2px solid #005eb8;
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .calculator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row.compact {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: flex;
+            flex-direction: column;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"], input[type="number"], select {
+            padding: 0.75rem;
+            font-size: 1rem;
+            margin-top: 0.3rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .price-input {
+            max-width: 200px;
+        }
+
+        .vat-option-group {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+            gap: 0.5rem;
+        }
+
+        .radio-label input[type="radio"] {
+            margin: 0;
+            width: auto;
+        }
+
+        .calculate-btn {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            background-color: #005eb8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        .calculate-btn:hover {
+            background-color: #004a94;
+        }
+
+        .results {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .result-section {
+            background-color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .result-section h3 {
+            margin-top: 0;
+            color: #005eb8;
+        }
+
+        .result-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.5rem 0;
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result-label {
+            font-weight: normal;
+            color: #555;
+        }
+
+        .result-value {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .highlight {
+            background-color: #e3f2fd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 1.1rem;
+        }
+
+        .highlight .result-value {
+            font-size: 1.2rem;
+        }
+
+        .info-text {
+            background-color: #e8f4f8;
+            padding: 1rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #0066cc;
+            margin-top: 1rem;
+        }
+
+        .formatted-input {
+            text-align: right;
+        }
+
+        @media (max-width: 700px) {
+            .comparison-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Leasing vs Hire Purchase Calculator</h1>
+    
+    <div class="calculator-form">
+        <!-- Equipment Details -->
+        <div class="section">
+            <h2>Equipment Details</h2>
+            <div class="form-row compact">
+                <label>
+                    Equipment Price ($):
+                    <input type="text" id="equipmentPrice" class="price-input" required>
+                </label>
+                <div class="vat-option-group">
+                    <label class="radio-label">
+                        <input type="radio" name="vatOption" value="excl" checked>
+                        <span>Excl. VAT</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="vatOption" value="incl">
+                        <span>Incl. VAT 25.5%</span>
+                    </label>
+                </div>
+            </div>
+            <div class="info-text">
+                <strong>Note:</strong> Leasing prices are always excluding VAT, hire purchase prices include VAT 25.5%
+            </div>
+        </div>
+
+        <!-- Leasing Section -->
+        <div class="section">
+            <h2>Leasing Details</h2>
+            <div class="form-row">
+                <label>
+                    Monthly Payment ($):
+                    <input type="text" id="monthlyLease">
+                </label>
+                <label>
+                    Lease Period (months):
+                    <input type="number" id="leasePeriod">
+                </label>
+            </div>
+            <div class="form-row">
+                <label>
+                    Residual Value ($):
+                    <input type="text" id="residualValue">
+                </label>
+                <label>
+                    Down Payment ($):
+                    <input type="text" id="leaseDownPayment">
+                </label>
+            </div>
+            <div class="form-row">
+                <label>
+                    Upfront Fee ($):
+                    <input type="text" id="leaseStartingCost">
+                </label>
+                <label>
+                    Monthly Extras ($):
+                    <input type="text" id="leaseMonthlyExtras">
+                </label>
+            </div>
+        </div>
+
+        <!-- Hire Purchase Section -->
+        <div class="section">
+            <h2>Hire Purchase Details</h2>
+            <div class="form-row">
+                <label>
+                    Down Payment (incl. VAT 25.5%) ($):
+                    <input type="text" id="hireDownPayment">
+                </label>
+                <label>
+                    Loan Period (months):
+                    <input type="number" id="hirePeriod">
+                </label>
+            </div>
+            <div class="form-row">
+                <label>
+                    Annual Interest Rate (%):
+                    <input type="text" id="hireInterestRate">
+                </label>
+                <label>
+                    Setup Fee (incl. VAT 25.5%) ($):
+                    <input type="text" id="hireSetupFee">
+                </label>
+            </div>
+            <div class="form-row">
+                <label>
+                    Monthly Processing Fee (incl. VAT 25.5%) ($):
+                    <input type="text" id="hireMonthlyFee">
+                </label>
+            </div>
+        </div>
+
+        <!-- Tax Section -->
+        <div class="section">
+            <h2>Tax Comparison</h2>
+            <div class="form-row">
+                <label>
+                    Company Tax Rate (%):
+                    <input type="text" id="taxRate" value="20">
+                </label>
+                <label>
+                    Depreciation Rate (%):
+                    <select id="depreciationRate">
+                        <option value="25">25% (machinery & equipment)</option>
+                        <option value="30">30% (IT equipment)</option>
+                        <option value="20">20% (buildings)</option>
+                        <option value="10">10% (other)</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <button type="button" class="calculate-btn" id="calculateBtn">Calculate Comparison</button>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+        <h2>Financing Comparison</h2>
+        <div class="comparison-container">
+            <!-- Leasing Results -->
+            <div class="result-section">
+                <h3>Leasing</h3>
+                <div class="result-line">
+                    <span class="result-label">Equipment Price:</span>
+                    <span class="result-value" id="leaseEquipmentPrice">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Down Payment:</span>
+                    <span class="result-value" id="leaseDownPaymentDisplay">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Financed Amount:</span>
+                    <span class="result-value" id="leaseFinancedAmount">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Monthly Payment:</span>
+                    <span class="result-value" id="leaseMonthlyTotal">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Effective Annual Rate:</span>
+                    <span class="result-value" id="leaseAPR">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Total Cost:</span>
+                    <span class="result-value" id="leaseTotalCost">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Tax Savings (annual):</span>
+                    <span class="result-value" id="leaseTaxSaving">-</span>
+                </div>
+                <div class="result-line highlight">
+                    <span class="result-label">Net Cost (after tax):</span>
+                    <span class="result-value" id="leaseNetCost">-</span>
+                </div>
+            </div>
+
+            <!-- Hire Purchase Results -->
+            <div class="result-section">
+                <h3>Hire Purchase</h3>
+                <div class="result-line">
+                    <span class="result-label">Equipment Price:</span>
+                    <span class="result-value" id="hireEquipmentPrice">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Down Payment:</span>
+                    <span class="result-value" id="hireDownPaymentDisplay">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Financed Amount:</span>
+                    <span class="result-value" id="hireFinancedAmount">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Monthly Payment:</span>
+                    <span class="result-value" id="hireMonthlyTotal">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Effective Annual Rate:</span>
+                    <span class="result-value" id="hireAPR">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Total Cost:</span>
+                    <span class="result-value" id="hireTotalCost">-</span>
+                </div>
+                <div class="result-line">
+                    <span class="result-label">Tax Savings (annual):</span>
+                    <span class="result-value" id="hireTaxSaving">-</span>
+                </div>
+                <div class="result-line highlight">
+                    <span class="result-label">Net Cost (after tax):</span>
+                    <span class="result-value" id="hireNetCost">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="result-section" style="margin-top: 1rem;">
+            <h3>Summary</h3>
+            <div class="result-line highlight">
+                <span class="result-label">Best Option:</span>
+                <span class="result-value" id="bestOption">-</span>
+            </div>
+            <div class="result-line">
+                <span class="result-label">Savings:</span>
+                <span class="result-value" id="savings">-</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Helper functions for currency formatting and number parsing
+        const formatCurrency = (value) =>
+            new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+            }).format(value);
+
+        const parseLocalizedFloat = (value) => {
+            if (!value) return 0;
+            const cleanValue = value.toString().replace(/\s/g, '').replace(',', '.');
+            return parseFloat(cleanValue) || 0;
+        };
+
+        // Main calculation function
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            console.log('Calculate button clicked!');
+            
+            // Get equipment price and VAT option
+            const equipmentPriceInput = parseLocalizedFloat(document.getElementById('equipmentPrice').value);
+            const vatOption = document.querySelector('input[name="vatOption"]:checked').value;
+            
+            if (!equipmentPriceInput) {
+                alert('Enter equipment price');
+                return;
+            }
+            
+            // Calculate prices based on VAT option
+            let finalEquipmentPrice, equipmentPriceWithVAT;
+            if (vatOption === 'excl') {
+                finalEquipmentPrice = equipmentPriceInput;
+                equipmentPriceWithVAT = equipmentPriceInput * 1.255;
+            } else {
+                finalEquipmentPrice = equipmentPriceInput / 1.255;
+                equipmentPriceWithVAT = equipmentPriceInput;
+            }
+
+            const taxRate = parseLocalizedFloat(document.getElementById('taxRate').value) || 20;
+            const depreciationRate = parseLocalizedFloat(document.getElementById('depreciationRate').value) || 25;
+            
+            // ===== LEASING CALCULATION =====
+            const monthlyLease = parseLocalizedFloat(document.getElementById('monthlyLease').value);
+            const leasePeriod = parseInt(document.getElementById('leasePeriod').value);
+            const residualValue = parseLocalizedFloat(document.getElementById('residualValue').value);
+            const leaseDownPayment = parseLocalizedFloat(document.getElementById('leaseDownPayment').value) || 0;
+            const leaseStartingCost = parseLocalizedFloat(document.getElementById('leaseStartingCost').value) || 0;
+            const leaseMonthlyExtras = parseLocalizedFloat(document.getElementById('leaseMonthlyExtras').value) || 0;
+
+            let leaseCalculated = false;
+            let leaseNetCost = 0;
+            
+            if (monthlyLease && leasePeriod && residualValue >= 0) {
+                leaseCalculated = true;
+                console.log('Calculating leasing...');
+                
+                const leasePrincipal = finalEquipmentPrice - leaseDownPayment;
+                const pureMonthlyCost = monthlyLease - leaseMonthlyExtras;
+                
+                // Newton-Raphson method for calculating APR
+                let guess = 0.05;
+                const tolerance = 1e-7;
+                const maxIterations = 100;
+                let iteration = 0;
+                let converged = false;
+
+                const calculateNPV = (rate) => {
+                    let npv = -leasePrincipal + leaseStartingCost;
+                    for (let i = 1; i <= leasePeriod; i++) {
+                        npv += pureMonthlyCost / Math.pow(1 + rate / 12, i);
+                    }
+                    npv += residualValue / Math.pow(1 + rate / 12, leasePeriod);
+                    return npv;
+                };
+
+                const calculateNPVDerivative = (rate) => {
+                    let derivative = 0;
+                    for (let i = 1; i <= leasePeriod; i++) {
+                        derivative -= (i * pureMonthlyCost) / (12 * Math.pow(1 + rate / 12, i + 1));
+                    }
+                    derivative -= (leasePeriod * residualValue) / (12 * Math.pow(1 + rate / 12, leasePeriod + 1));
+                    return derivative;
+                };
+
+                // Newton-Raphson iteration
+                while (!converged && iteration < maxIterations) {
+                    const npv = calculateNPV(guess);
+                    const derivative = calculateNPVDerivative(guess);
+                    if (Math.abs(derivative) < tolerance) break;
+
+                    const nextGuess = guess - npv / derivative;
+                    if (Math.abs(nextGuess - guess) < tolerance) {
+                        converged = true;
+                    }
+                    guess = nextGuess < 0 || nextGuess > 1 ? 0.01 : nextGuess;
+                    iteration++;
+                }
+
+                // Fallback calculation if Newton-Raphson doesn't converge
+                if (!converged) {
+                    const totalPurePayments = pureMonthlyCost * leasePeriod;
+                    const totalRepaid = totalPurePayments + residualValue;
+                    guess = ((totalRepaid - leasePrincipal) / leasePrincipal) * (12 / leasePeriod);
+                }
+
+                const leaseAPR = guess * 100;
+                const totalMonthlyPayments = monthlyLease * leasePeriod;
+                
+                // Total cost includes residual value for fair comparison (assumes equipment purchase)
+                const leaseTotalCost = leaseDownPayment + totalMonthlyPayments + leaseStartingCost + residualValue;
+                const leaseTotalCostWithVAT = leaseTotalCost * 1.255;
+                
+                // Tax calculations - all leasing payments are tax deductible
+                const totalAnnualPayments = monthlyLease * 12;
+                const leaseTaxSavingAnnual = totalAnnualPayments * (taxRate / 100);
+                leaseNetCost = leaseTotalCostWithVAT - (totalMonthlyPayments * (taxRate / 100) * 1.255);
+                
+                // Update leasing results display
+                document.getElementById('leaseEquipmentPrice').textContent = formatCurrency(finalEquipmentPrice) + ' (excl VAT)';
+                document.getElementById('leaseDownPaymentDisplay').textContent = formatCurrency(leaseDownPayment) + ' (excl VAT)';
+                document.getElementById('leaseFinancedAmount').textContent = formatCurrency(leasePrincipal) + ' (excl VAT)';
+                document.getElementById('leaseMonthlyTotal').textContent = formatCurrency(monthlyLease * 1.255) + ' (incl VAT)';
+                document.getElementById('leaseAPR').textContent = leaseAPR.toFixed(2) + '%';
+                document.getElementById('leaseTotalCost').textContent = formatCurrency(leaseTotalCostWithVAT) + ' (incl VAT)';
+                document.getElementById('leaseTaxSaving').textContent = formatCurrency(leaseTaxSavingAnnual);
+                document.getElementById('leaseNetCost').textContent = formatCurrency(leaseNetCost) + ' (incl VAT)';
+            } else {
+                // Display "not calculated" for leasing results
+                document.getElementById('leaseEquipmentPrice').textContent = 'Not calculated';
+                document.getElementById('leaseDownPaymentDisplay').textContent = 'Not calculated';
+                document.getElementById('leaseFinancedAmount').textContent = 'Not calculated';
+                document.getElementById('leaseMonthlyTotal').textContent = 'Not calculated';
+                document.getElementById('leaseAPR').textContent = 'Not calculated';
+                document.getElementById('leaseTotalCost').textContent = 'Not calculated';
+                document.getElementById('leaseTaxSaving').textContent = 'Not calculated';
+                document.getElementById('leaseNetCost').textContent = 'Not calculated';
+            }
+
+            // ===== HIRE PURCHASE CALCULATION =====
+            const hireDownPayment = parseLocalizedFloat(document.getElementById('hireDownPayment').value) || 0;
+            const hirePeriod = parseInt(document.getElementById('hirePeriod').value);
+            const hireInterestRate = parseLocalizedFloat(document.getElementById('hireInterestRate').value);
+            const hireSetupFee = parseLocalizedFloat(document.getElementById('hireSetupFee').value) || 0;
+            const hireMonthlyFee = parseLocalizedFloat(document.getElementById('hireMonthlyFee').value) || 0;
+
+            let hireCalculated = false;
+            let hireNetCost = 0;
+            
+            if (hirePeriod && hireInterestRate) {
+                hireCalculated = true;
+                console.log('Calculating hire purchase...');
+
+                const hirePrincipal = equipmentPriceWithVAT - hireDownPayment;
+                const monthlyRate = hireInterestRate / 100 / 12;
+                
+                // Calculate annuity payment using standard loan formula
+                let annuityPayment;
+                if (hireInterestRate === 0) {
+                    annuityPayment = hirePrincipal / hirePeriod;
+                } else {
+                    annuityPayment = hirePrincipal * (monthlyRate * Math.pow(1 + monthlyRate, hirePeriod)) / 
+                                   (Math.pow(1 + monthlyRate, hirePeriod) - 1);
+                }
+                
+                const totalMonthlyPayment = annuityPayment + hireMonthlyFee;
+                const totalAnnuityPayments = annuityPayment * hirePeriod;
+                const totalInterest = totalAnnuityPayments - hirePrincipal;
+                const totalFees = (hireMonthlyFee * hirePeriod) + hireSetupFee;
+                const hireTotalCost = hireDownPayment + totalAnnuityPayments + totalFees;
+                
+                // Tax calculations - interest + depreciation deductions for hire purchase
+                const hireTaxSavingAnnual = (totalInterest * (taxRate / 100)) / (hirePeriod / 12);
+                
+                // Calculate declining balance depreciation over the hire purchase period
+                let remainingValue = equipmentPriceWithVAT;
+                let totalDepreciationSavings = 0;
+                const yearsInPeriod = hirePeriod / 12;
+                
+                for (let year = 1; year <= yearsInPeriod; year++) {
+                    const yearlyDepreciation = remainingValue * (depreciationRate / 100);
+                    const yearlyDepreciationTaxSaving = yearlyDepreciation * (taxRate / 100);
+                    totalDepreciationSavings += yearlyDepreciationTaxSaving;
+                    remainingValue -= yearlyDepreciation;
+                }
+                
+                // Total annual tax savings = interest + average annual depreciation
+                const averageAnnualDepreciationSaving = totalDepreciationSavings / yearsInPeriod;
+                const totalHireTaxSavingAnnual = hireTaxSavingAnnual + averageAnnualDepreciationSaving;
+                
+                hireNetCost = hireTotalCost - (totalInterest * (taxRate / 100)) - totalDepreciationSavings;
+                
+                // Update hire purchase results display
+                document.getElementById('hireEquipmentPrice').textContent = formatCurrency(equipmentPriceWithVAT);
+                document.getElementById('hireDownPaymentDisplay').textContent = formatCurrency(hireDownPayment);
+                document.getElementById('hireFinancedAmount').textContent = formatCurrency(hirePrincipal);
+                document.getElementById('hireMonthlyTotal').textContent = formatCurrency(totalMonthlyPayment);
+                document.getElementById('hireAPR').textContent = hireInterestRate.toFixed(2) + '%';
+                document.getElementById('hireTotalCost').textContent = formatCurrency(hireTotalCost);
+                document.getElementById('hireTaxSaving').textContent = formatCurrency(totalHireTaxSavingAnnual);
+                document.getElementById('hireNetCost').textContent = formatCurrency(hireNetCost) + ' (incl VAT)';
+            } else {
+                // Display "not calculated" for hire purchase results
+                document.getElementById('hireEquipmentPrice').textContent = 'Not calculated';
+                document.getElementById('hireDownPaymentDisplay').textContent = 'Not calculated';
+                document.getElementById('hireFinancedAmount').textContent = 'Not calculated';
+                document.getElementById('hireMonthlyTotal').textContent = 'Not calculated';
+                document.getElementById('hireAPR').textContent = 'Not calculated';
+                document.getElementById('hireTotalCost').textContent = 'Not calculated';
+                document.getElementById('hireTaxSaving').textContent = 'Not calculated';
+                document.getElementById('hireNetCost').textContent = 'Not calculated';
+            }
+
+            // Show results section
+            document.getElementById('results').style.display = 'block';
+            
+            // ===== SUMMARY COMPARISON =====
+            if (leaseCalculated && hireCalculated) {
+                // Both calculations available - show comparison
+                if (leaseNetCost < hireNetCost) {
+                    document.getElementById('bestOption').textContent = 'Leasing';
+                    document.getElementById('savings').textContent = formatCurrency(hireNetCost - leaseNetCost);
+                } else {
+                    document.getElementById('bestOption').textContent = 'Hire Purchase';
+                    document.getElementById('savings').textContent = formatCurrency(leaseNetCost - hireNetCost);
+                }
+            } else if (leaseCalculated) {
+                document.getElementById('bestOption').textContent = 'Only leasing calculated';
+                document.getElementById('savings').textContent = 'Add hire purchase details';
+            } else if (hireCalculated) {
+                document.getElementById('bestOption').textContent = 'Only hire purchase calculated';
+                document.getElementById('savings').textContent = 'Add leasing details';
+            } else {
+                document.getElementById('bestOption').textContent = 'No calculations';
+                document.getElementById('savings').textContent = 'Enter details';
+            }
+            
+            console.log('Results displayed!');
+        });
+    </script>
+</body>
+</html>
